@@ -185,7 +185,21 @@ select * from input;
 select count(*) as 'users' from (select user_id from input group by user_id
 having count(distinct date(transaction_date)) >1) t;
 
+-- Question 12
+-- write a query that returns true/false for each user based on the overlapping
+-- of dates with other users.if user1's subs period overlaps with any other user
+-- the query must return true for user 1
 
+create table subscription(user_id varchar(255),start_date date,end_date date);
+insert into subscription values('U1','2020-01-01','2020-01-31'),('U2','2020-01-16','2020-01-26'),('U3','2020-01-28','2020-02-06'),('U4','2020-02-16','2020-02-26');
+select s1.user_id,
+(case when s2.user_id is not null then 1 else 0 end) as overlap
+from subscription as s1
+left join subscription as s2
+on s1.user_id != s2.user_id
+and s1.start_date <s2.end_date
+and s1.end_date > s2.start_date
+group by s1.user_id;
 
 
 
