@@ -140,8 +140,14 @@ insert into gpa_history values(1,1001,2018,4,True),
 (3,2001,2018,4,True),(3,1001,2019,4,True);
 
 select * from gpa_history;
-select distinct(student_id),school_year,avg(gpa) over(partition by school_year ) as 'avg' from gpa_history
-where gpa >=3.5; 
+SELECT
+    student_id,
+    school_year,
+    AVG(gpa) AS avg_gpa
+FROM gpa_history
+WHERE isrequired = TRUE
+GROUP BY student_id, school_year
+HAVING AVG(gpa) >= 3.5;
 
 -- Question 9
 -- find the total number of classes taken by each student(provide student id,
@@ -155,6 +161,20 @@ insert into class values(1,3001,'spring 2019'),(1,2001,'fall 2019'),
 insert into student values(1,'Eddie Rodgers'),(2,'Koa Larsen'),(5,'Zahrah Mathis'),
 (6,'Ameer Silva');
 
+WITH class_count AS (
+    SELECT student_id, COUNT(*) AS num_of_class
+    FROM class
+    GROUP BY student_id
+)
+SELECT
+    c.student_id,
+    s.student_name,
+    c.num_of_class
+FROM class_count c
+-- CASE 1: include only active students
+JOIN student s ON c.student_id = s.student_id;
+-- CASE 2: include all students
+-- LEFT JOIN student s ON c.student_id = s.student_id
 select s.student_id,s.student_name,count(class_id) as num_of_classes
 from student s left join class c on s.student_id = c.student_id
 group by s.student_id ;
